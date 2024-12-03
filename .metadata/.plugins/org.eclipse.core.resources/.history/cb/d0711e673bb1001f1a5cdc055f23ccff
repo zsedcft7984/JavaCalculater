@@ -1,0 +1,96 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private static double operand1 = 0;  // 첫 번째 피연산자
+    private static double operand2 = 0;  // 두 번째 피연산자
+    private static String operator = ""; // 연산자
+
+    public Action(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        if (buttonText.equals("C")) {
+            // 전체 초기화
+            textField.setText("");
+            resultField.setText("");
+            operand1 = 0;
+            operand2 = 0;
+            operator = "";
+            firstInput = true;
+        } else if (buttonText.equals("CE")) {
+            // 현재 입력 중인 숫자만 초기화
+            textField.setText("");
+        } else if (firstInput) {
+            // 첫 입력은 숫자만 허용
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(buttonText);
+                resultField.setText(buttonText); // resultField 업데이트
+                firstInput = false;
+            }
+        } else {
+            String currentText = textField.getText();
+
+            if (buttonText.matches("[0-9]")) {
+                // 숫자 추가
+                String updatedText = currentText + buttonText;
+                textField.setText(updatedText);
+                resultField.setText(updatedText); // resultField 업데이트
+            } else if (buttonText.matches("[+\\-*/]")) {
+                // 연산자 처리
+                if (!currentText.isEmpty()) {
+                    operand1 = Double.parseDouble(currentText);
+                    operator = buttonText;
+                    textField.setText(""); // 텍스트 필드 초기화
+                    resultField.setText(formatNumber(operand1) + " " + operator); // 수식 표시
+                }
+            } else if (buttonText.equals("=")) {
+                // "=" 버튼 처리
+                if (!currentText.isEmpty()) {
+                    operand2 = Double.parseDouble(currentText);
+                    double result = calculate(operand1, operand2, operator);
+
+                    if (Double.isNaN(result)) {
+                        resultField.setText(formatNumber(operand1) + " " + operator + " " + formatNumber(operand2) + " = Error");
+                    } else {
+                        resultField.setText(formatNumber(operand1) + " " + operator + " " + formatNumber(operand2) + " = " + formatNumber(result)); // 수식과 결과 표시
+                        operand1 = result; // 결과를 다음 계산의 operand1로 설정
+                    }
+                }
+                textField.setText(""); // 텍스트 필드 초기화
+                firstInput = true;
+            }
+        }
+    }
+
+    // 연산 수행
+    private double calculate(double operand1, double operand2, String operator) {
+        switch (operator) {
+            case "+": return operand1 + operand2;
+            case "-": return operand1 - operand2;
+            case "*": return operand1 * operand2;
+            case "/": return operand2 != 0 ? operand1 / operand2 : Double.NaN;
+            default: return 0;
+        }
+    }
+
+    // 결과를 정수 또는 실수로 형식화
+    private String formatNumber(double value) {
+        if (value == (long) value) {
+            return String.format("%d", (long) value); // 정수로 출력
+        } else {
+            return String.format("%s", value); // 실수로 출력
+        }
+    }
+}

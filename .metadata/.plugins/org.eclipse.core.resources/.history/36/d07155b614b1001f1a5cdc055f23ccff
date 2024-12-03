@@ -1,0 +1,12 @@
+package calculator;
+
+import java.awt.*;
+import javax.swing.*;
+
+
+public class MainFrame {
+	public MainFrame() {
+		setSize(300,200)
+	}
+
+}

@@ -1,0 +1,133 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action2 implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private static double operand1 = 0;  // 첫 번째 피연산자
+    private static double operand2 = 0;  // 두 번째 피연산자
+    private static double previousResult = 0;  // 이전 계산값 (결과 기억)
+    private static String operator = ""; // 연산자
+    private String currentExpression = "";  // 수식 저장용 변수
+    
+    // 생성자
+    public Action2(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        // Handle numbers and decimal point
+        if ("0123456789.".contains(command)) {
+            if (firstInput) {
+                textField.setText(command);  // Start new input
+                firstInput = false;
+            } else {
+                textField.setText(textField.getText() + command); // Append number or dot
+            }
+
+            // Update the expression in resultField
+            currentExpression += command;  // Append the number to the current expression
+            resultField.setText(currentExpression);  // Show the current expression
+        }
+        // Handle operators: +, -, ×, ÷
+        else if ("+-×÷".contains(command)) {
+            if (!operator.isEmpty()) {
+                // If an operator is pressed again, perform the previous operation
+                operand2 = Double.parseDouble(textField.getText());
+                switch (operator) {
+                    case "+":
+                        operand1 += operand2;
+                        break;
+                    case "-":
+                        operand1 -= operand2;
+                        break;
+                    case "×":
+                        operand1 *= operand2;
+                        break;
+                    case "÷":
+                        if (operand2 != 0) {
+                            operand1 /= operand2;
+                        } else {
+                            resultField.setText("Error");
+                            return;
+                        }
+                        break;
+                }
+                // After operation, update resultField with the result and formula
+                if (operand1 == (int) operand1) {
+                    resultField.setText(currentExpression + " = " + (int) operand1);  // Display formula and result as integer
+                } else {
+                    resultField.setText(currentExpression + " = " + operand1);  // Display formula and result
+                }
+            }
+
+            // Update currentExpression with the operator
+            operator = command;  // Store the current operator
+            currentExpression += " " + operator + " ";  // Append operator to expression
+            textField.setText(""); // Clear text for next operand
+        }
+        // Handle "=" for calculation
+        else if (command.equals("=")) {
+            operand2 = Double.parseDouble(textField.getText());  // Get the second operand
+
+            // Perform the calculation based on the stored operator
+            double result = 0;
+            switch (operator) {
+                case "+":
+                    result = operand1 + operand2;
+                    break;
+                case "-":
+                    result = operand1 - operand2;
+                    break;
+                case "×":
+                    result = operand1 * operand2;
+                    break;
+                case "÷":
+                    if (operand2 != 0) {
+                        result = operand1 / operand2;
+                    } else {
+                        resultField.setText("Error");
+                        return;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            previousResult = result;
+
+            // Display the full expression and the result
+            if (result == (int) result) {
+                resultField.setText(currentExpression + operand2 + " = " + (int) result);  // Display formula and result as integer
+            } else {
+                resultField.setText(currentExpression + operand2 + " = " + result);  // Display formula and result
+            }
+
+            // Store the result for future calculations
+            operand1 = result;
+            firstInput = true;  // Reset for next input
+            operator = "";  // Clear operator
+            currentExpression = "";  // Clear expression
+        }
+        // Handle "C" (clear)
+        else if (command.equals("C")) {
+            textField.setText("");  // Clear the input field
+            resultField.setText("");  // Clear the result field
+            operand1 = operand2 = previousResult = 0;
+            operator = "";
+            firstInput = true;
+            currentExpression = "";  // Clear the expression
+        }
+        // Handle "CE" (Clear Entry) to clear only the current input
+        else if (command.equals("CE")) {
+            textField.setText("");  // Clear the current input only
+        }
+    }
+}

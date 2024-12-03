@@ -1,0 +1,26 @@
+package calculator;
+
+import java.awt.*;
+import javax.swing.*;
+
+
+public class MainFrame extends JFrame {
+	public MainFrame() {
+		setTitle("계산기");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(350,500);
+		
+		Container contentPane = getContentPane();
+		contentPane.setLayout(new GridLayout(9, 4))
+		contentPane.setLayout(new GridLayout(9, 4));
+        
+		for(int i=0; i<36; i++) {
+            String text = Integer.toString(i);
+            JButton btn = new JButton(text);
+            this.add(btn);
+        }
+        
+        
+        setVisible(true);
+	}
+}

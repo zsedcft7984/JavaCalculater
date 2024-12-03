@@ -1,0 +1,97 @@
+package calculator;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Action implements ActionListener {
+    private JTextField textField;
+    private JTextField resultField;  // 결과를 표시하는 필드
+    private static boolean firstInput = true;  // 계산기 전체에서 하나의 첫 입력 상태를 유지
+    private static double operand1 = 0;  // 첫 번째 피연산자
+    private static double operand2 = 0;  // 두 번째 피연산자
+    private static String operator = "";  // 현재 연산자
+
+    // 생성자: 버튼 클릭 이벤트를 처리할 텍스트 필드 전달
+    public Action(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        // 첫 번째 입력에는 숫자만 입력 가능
+        if (firstInput) {
+            // 첫 번째 입력은 숫자만 허용
+            if (buttonText.matches("[1-9]")) {
+                textField.setText(buttonText);  // 첫 번째 숫자 입력
+                firstInput = false;  // 첫 번째 입력 완료
+            }
+        } else {
+            // 첫 번째 입력 이후에는 숫자, 연산자, 특수 버튼 모두 입력 가능
+            String currentText = textField.getText();
+
+            // 숫자 버튼이면 기존 숫자 뒤에 추가
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(currentText + buttonText);  // 기존 숫자 뒤에 새 숫자 추가
+            } 
+            // 연산자 버튼이면 기존 텍스트 뒤에 연산자 추가
+            else if (buttonText.matches("[+\\-*/]")) {
+                operand1 = Double.parseDouble(currentText);  // 첫 번째 피연산자 설정
+                operator = buttonText;  // 연산자 설정
+                textField.setText("");  // 계산기 화면을 비움
+                firstInput = true;  // 다음 입력을 첫 번째 입력으로 설정
+            }
+            // 소수점 버튼 처리
+            else if (buttonText.equals(".")) {
+                // 소수점이 이미 존재하면 추가되지 않도록 처리
+                if (!currentText.contains(".")) {
+                    textField.setText(currentText + buttonText);
+                }
+            }
+            // "=" 버튼을 클릭하면 계산을 처리
+            else if (buttonText.equals("=")) {
+                operand2 = Double.parseDouble(currentText);  // 두 번째 피연산자 설정
+                double result = calculate(operand1, operand2, operator);  // 계산 수행
+                resultField.setText(String.valueOf(result));  // 결과를 resultField에 표시
+                firstInput = true;  // 계산 후 첫 번째 입력 상태로 리셋
+            }
+            // "C" 버튼: 텍스트 필드 초기화
+            else if (buttonText.equals("C")) {
+                textField.setText("");
+                resultField.setText("");  // 결과 필드도 초기화
+                firstInput = true;  // 첫 번째 입력 초기화
+            }
+            // "CE" 버튼: 마지막 입력만 제거
+            else if (buttonText.equals("CE")) {
+                String current = textField.getText();
+                if (current.length() > 0) {
+                    textField.setText(current.substring(0, current.length() - 1));
+                }
+            }
+        }
+    }
+
+    // 사칙연산 계산 처리
+    private double calculate(double operand1, double operand2, String operator) {
+        switch (operator) {
+            case "+":
+                return operand1 + operand2;
+            case "-":
+                return operand1 - operand2;
+            case "*":
+                return operand1 * operand2;
+            case "/":
+                if (operand2 != 0) {
+                    return operand1 / operand2;  // 0으로 나누는 오류 방지
+                } else {
+                    JOptionPane.showMessageDialog(null, "0으로 나눌 수 없습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                    return 0;
+                }
+            default:
+                return 0;
+        }
+    }
+}

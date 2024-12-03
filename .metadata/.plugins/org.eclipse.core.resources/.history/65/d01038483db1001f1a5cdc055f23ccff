@@ -1,0 +1,64 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private static double operand1 = 0;  // 첫 번째 피연산자
+    private static double operand2 = 0;  // 두 번째 피연산자
+    private static String operator = ""; // 연산자
+
+    public Action(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        if (firstInput) {
+            if (buttonText.matches("[1-9]")) {
+                textField.setText(buttonText); // 첫 숫자 입력
+                firstInput = false;
+            }
+        } else {
+            String currentText = textField.getText();
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(currentText + buttonText); // 숫자 추가
+            } else if (buttonText.matches("[+\\-*/]")) {
+                operand1 = Double.parseDouble(currentText);
+                operator = buttonText;
+                textField.setText("");
+            } else if (buttonText.equals("=")) {
+                operand2 = Double.parseDouble(currentText);
+                double result = calculate(operand1, operand2, operator);
+                resultField.setText(String.valueOf(result));
+                textField.setText(""); // 결과 후 텍스트 필드 초기화
+                firstInput = true;
+            } else if (buttonText.equals("C")) {
+                textField.setText("");
+                resultField.setText("");
+                firstInput = true;
+            } else if (buttonText.equals("CE")) {
+                if (!currentText.isEmpty()) {
+                    textField.setText(currentText.substring(0, currentText.length() - 1));
+                }
+            }
+        }
+    }
+
+    private double calculate(double operand1, double operand2, String operator) {
+        switch (operator) {
+            case "+": return operand1 + operand2;
+            case "-": return operand1 - operand2;
+            case "*": return operand1 * operand2;
+            case "/": return operand2 != 0 ? operand1 / operand2 : Double.NaN;
+            default: return 0;
+        }
+    }
+}

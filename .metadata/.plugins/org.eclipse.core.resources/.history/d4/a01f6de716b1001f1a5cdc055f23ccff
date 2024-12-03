@@ -1,0 +1,28 @@
+package calculator;
+
+import java.awt.*;
+import javax.swing.*;
+
+
+public class MainFrame extends JFrame {
+	public MainFrame() {
+		setTitle("계산기");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(300,500);
+		
+		Container contentPane = getContentPane();
+		
+		contentPane.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 40));
+        
+        contentPane.add(new JButton("버튼 1"));
+        contentPane.add(new JButton("버튼 2"));
+        contentPane.add(new JButton("버튼 3"));
+        contentPane.add(new JButton("버튼 4"));
+        contentPane.add(new JButton("버튼 5"));
+        contentPane.add(new JButton("버튼 6"));
+        
+        
+        setVisible(true);
+	}
+
+}

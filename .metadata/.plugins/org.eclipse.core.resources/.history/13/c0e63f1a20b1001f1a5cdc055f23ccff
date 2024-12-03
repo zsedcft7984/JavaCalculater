@@ -1,0 +1,85 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class Calculator {
+    public static void main(String[] args) {
+        // JFrame 생성
+        JFrame frame = new JFrame("계산기");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600);
+        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));  // 수직 방향으로 컴포넌트를 배치
+
+        // 상단 텍스트 표시 필드 (수식 입력)
+        JTextField textField = TextFieldCreator.createFormulaTextField();
+        
+        // 숫자만 입력되도록 제한하는 KeyListener 추가
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char keyChar = e.getKeyChar();
+                // 숫자, 연산자 (+, -, *, /, =), Backspace만 허용
+                if (!Character.isDigit(keyChar) && keyChar != KeyEvent.VK_BACK_SPACE && keyChar != '+' 
+                        && keyChar != '-' && keyChar != '*' && keyChar != '/' && keyChar != '=') {
+                    e.consume();  // 불필요한 입력을 막음
+                }
+            }
+        });
+
+        frame.add(textField);
+
+        // 결과 텍스트 필드 (결과 표시용)
+        JTextField resultField = TextFieldCreator.createResultTextField();
+        frame.add(resultField);  // 결과 필드를 하단에 배치
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(6, 4, 5, 5)); // 5행 4열 그리드 레이아웃
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // 버튼 배열
+        String[] buttons = {
+            "%", "CE", "C", "X", 
+            "1/x", "x²", "√x", "÷", 
+            "7", "8", "9", "×", 
+            "4", "5", "6", "-", 
+            "1", "2", "3", "+", 
+            "+/-", "0", ".", "="
+        };
+
+        // 버튼 추가 (버튼 크기 조정)
+        for (String text : buttons) {
+            JButton button = new Button(text).createButton();  // 외부 Button 클래스 사용
+            button.setPreferredSize(new Dimension(80, 60));  // 버튼 크기 설정
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel);
+
+        // 프레임 표시
+        frame.setVisible(true);
+    }
+}
+
+class Button {
+    private String text;
+
+    public Button(String text) {
+        this.text = text;
+    }
+
+    public JButton createButton() {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 20));
+        button.setFocusPainted(false); // 버튼 선택 표시 제거
+        button.setBackground(Color.WHITE); // 버튼 배경색
+        if (text.equals("=")) {
+            button.setBackground(new Color(0, 120, 215)); // "=" 버튼은 파란색
+            button.setForeground(Color.WHITE); // 텍스트는 흰색
+        }
+        return button;
+    }
+}

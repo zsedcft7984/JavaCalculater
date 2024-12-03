@@ -1,0 +1,132 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class Action implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private ArrayList<String> expression = new ArrayList<>(); // 입력된 식을 저장하는 리스트
+
+    public Action(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        if (buttonText.equals("C")) {
+            // 전체 초기화
+            textField.setText("");
+            resultField.setText("");
+            expression.clear();
+            firstInput = true;
+        } else if (buttonText.equals("CE")) {
+            // 현재 입력 중인 숫자만 초기화
+            textField.setText("");
+        } else if (firstInput) {
+            // 첫 입력은 숫자만 허용
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(buttonText);
+                resultField.setText(buttonText); // resultField 업데이트
+                firstInput = false;
+            }
+        } else {
+            String currentText = textField.getText();
+
+            if (buttonText.matches("[0-9]")) {
+                // 숫자 추가
+                textField.setText(currentText + buttonText);
+                resultField.setText(resultField.getText() + buttonText); // 수식 업데이트
+            } else if (buttonText.matches("[+\\-\\*\\/]")) {
+                // 연산자 처리
+                if (!currentText.isEmpty()) {
+                    expression.add(currentText); // 현재 입력 숫자를 식에 추가
+                    expression.add(buttonText); // 연산자 추가
+                    textField.setText(""); // 텍스트 필드 초기화
+                    resultField.setText(resultField.getText() + " " + buttonText + " "); // 수식 업데이트
+                }
+            } else if (buttonText.equals("=")) {
+                // "=" 버튼 처리
+                if (!currentText.isEmpty()) {
+                    expression.add(currentText); // 마지막 숫자 추가
+                    double result = evaluateExpression(expression); // 식 계산
+                    resultField.setText(String.join(" ", expression) + " = " + formatNumber(result)); // 식과 결과 표시
+                    textField.setText(""); // 텍스트 필드 초기화
+                    expression.clear(); // 계산 후 식 초기화
+                    firstInput = true;
+                }
+            }
+        }
+    }
+
+    // 식 계산 메서드
+    private double evaluateExpression(ArrayList<String> expression) {
+        ArrayList<String> postfix = convertToPostfix(expression); // 중위 표기법 -> 후위 표기법 변환
+        return calculatePostfix(postfix); // 후위 표기법 계산
+    }
+
+    // 중위 표기법 -> 후위 표기법 변환
+    private ArrayList<String> convertToPostfix(ArrayList<String> infix) {
+        ArrayList<String> postfix = new ArrayList<>();
+        Stack<String> operators = new Stack<>();
+        for (String token : infix) {
+            if (token.matches("[0-9]+")) {
+                postfix.add(token); // 숫자는 바로 추가
+            } else if (token.matches("[+\\-*/]")) {
+                while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(token)) {
+                    postfix.add(operators.pop());
+                }
+                operators.push(token);
+            }
+        }
+        while (!operators.isEmpty()) {
+            postfix.add(operators.pop());
+        }
+        return postfix;
+    }
+
+    // 후위 표기법 계산
+    private double calculatePostfix(ArrayList<String> postfix) {
+        Stack<Double> stack = new Stack<>();
+        for (String token : postfix) {
+            if (token.matches("[0-9]+")) {
+                stack.push(Double.parseDouble(token));
+            } else {
+                double b = stack.pop();
+                double a = stack.pop();
+                switch (token) {
+                    case "+": stack.push(a + b); break;
+                    case "-": stack.push(a - b); break;
+                    case "*": stack.push(a * b); break;
+                    case "/": stack.push(b != 0 ? a / b : Double.NaN); break;
+                }
+            }
+        }
+        return stack.isEmpty() ? 0 : stack.pop();
+    }
+
+    // 연산자 우선순위
+    private int precedence(String operator) {
+        switch (operator) {
+            case "+": case "-": return 1;
+            case "*": case "/": return 2;
+            default: return 0;
+        }
+    }
+
+    // 결과를 정수 또는 실수로 형식화
+    private String formatNumber(double value) {
+        if (value == (long) value) {
+            return String.format("%d", (long) value); // 정수로 출력
+        } else {
+            return String.format("%s", value); // 실수로 출력
+        }
+    }
+}

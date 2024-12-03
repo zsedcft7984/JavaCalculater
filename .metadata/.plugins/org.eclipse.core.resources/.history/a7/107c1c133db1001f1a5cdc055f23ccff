@@ -1,0 +1,40 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Action implements ActionListener {
+    private JTextField textField;
+    private static boolean firstInput = true;  // 계산기 전체에서 하나의 첫 입력 상태를 유지
+
+    // 생성자: 버튼 클릭 이벤트를 처리할 텍스트 필드 전달
+    public Action(JTextField textField) {
+        this.textField = textField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        // 첫 번째 입력에는 숫자만 입력 가능
+        if (firstInput) {
+            // 숫자만 입력 가능
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(buttonText);  // 첫 번째 숫자 입력
+                firstInput = false;  // 첫 번째 입력 완료
+            }
+        } else {
+            // 첫 번째 입력 이후에는 숫자, 연산자 모두 입력 가능
+            String currentText = textField.getText();
+
+            // 숫자 버튼이면 기존 숫자 뒤에 추가
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(currentText + buttonText);  // 기존 숫자 뒤에 새 숫자 추가
+            } else if (buttonText.matches("[+\\-*/=]")) {
+                textField.setText(currentText + buttonText);  // 연산자 뒤에 추가
+            }
+        }
+    }
+}

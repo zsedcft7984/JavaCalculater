@@ -1,0 +1,98 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private String currentExpression = ""; // 현재 입력된 수식
+
+    public Action(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String buttonText = sourceButton.getText();
+
+        if (buttonText.equals("C")) {
+            // 전체 초기화
+            textField.setText("");
+            resultField.setText("");
+            currentExpression = "";
+            firstInput = true;
+        } else if (buttonText.equals("CE")) {
+            // 현재 입력 중인 숫자만 초기화
+            textField.setText("");
+        } else if (firstInput) {
+            // 첫 입력은 숫자만 허용
+            if (buttonText.matches("[0-9]")) {
+                textField.setText(buttonText);
+                resultField.setText(buttonText);
+                firstInput = false;
+            }
+        } else {
+            String currentText = textField.getText();
+
+            if (buttonText.matches("[0-9]")) {
+                // 숫자 추가
+                textField.setText(currentText + buttonText);
+                resultField.setText(resultField.getText() + buttonText); // 수식 업데이트
+            } else if (buttonText.matches("[+\\-\\x\\÷]")) {
+                // 연산자 처리
+                if (!currentText.isEmpty()) {
+                    currentExpression += currentText + " " + buttonText + " "; // 수식에 추가
+                    textField.setText(""); // 텍스트 필드 초기화
+                    resultField.setText(resultField.getText() + " " + buttonText + " "); // 수식 업데이트
+                }
+            } else if (buttonText.equals("=")) {
+                // "=" 버튼 처리
+                if (!currentText.isEmpty()) {
+                    currentExpression += currentText; // 마지막 숫자 추가
+                    double result = evaluateExpression(currentExpression); // 수식 계산
+                    resultField.setText(currentExpression + " = " + formatNumber(result)); // 수식과 결과 표시
+                    textField.setText(""); // 텍스트 필드 초기화
+                    currentExpression = ""; // 수식 초기화
+                    firstInput = true;
+                }
+            }
+        }
+    }
+
+    // 간단한 사칙연산을 계산하는 메서드
+    private double evaluateExpression(String expression) {
+        // 우선순위 처리된 사칙연산 계산 (단순화된 방법)
+        String[] tokens = expression.split(" ");
+        double result = 0;
+        double tempResult = 0;
+        String operator = "+";
+
+        for (String token : tokens) {
+            if (token.matches("[0-9]+")) {
+                double num = Double.parseDouble(token);
+                switch (operator) {
+                    case "+": result += num; break;
+                    case "-": result -= num; break;
+                    case "*": result *= num; break;
+                    case "/": result /= num; break;
+                }
+            } else if (token.matches("[+\\-*/]")) {
+                operator = token;
+            }
+        }
+        return result;
+    }
+
+    // 결과를 정수 또는 실수로 형식화
+    private String formatNumber(double value) {
+        if (value == (long) value) {
+            return String.format("%d", (long) value); // 정수로 출력
+        } else {
+            return String.format("%s", value); // 실수로 출력
+        }
+    }
+}

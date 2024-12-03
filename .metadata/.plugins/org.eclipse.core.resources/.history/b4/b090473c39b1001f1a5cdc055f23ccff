@@ -1,0 +1,75 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Calculator {
+    private JFrame frame;
+    private JTextField textField;
+    private JTextField resultField;
+    private JPanel buttonPanel;
+
+    // 생성자: 외부에서 호출할 수 있도록 설정
+    public Calculator() {
+        // JFrame 생성
+        frame = new JFrame("계산기");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600);
+        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));  // 수직 방향으로 컴포넌트를 배치
+
+        // 상단 텍스트 표시 필드 (수식 입력)
+        textField = TextFieldCreator.createFormulaTextField();
+        
+        // 숫자만 입력되도록 제한하는 KeyListener 추가
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char keyChar = e.getKeyChar();
+                // 숫자, 연산자 (+, -, *, /, =), Backspace만 허용
+                if (!Character.isDigit(keyChar) && keyChar != KeyEvent.VK_BACK_SPACE && keyChar != '+' 
+                        && keyChar != '-' && keyChar != '*' && keyChar != '/' && keyChar != '=') {
+                    e.consume();  // 불필요한 입력을 막음
+                }
+            }
+        });
+
+        frame.add(textField);
+
+        // 결과 텍스트 필드 (결과 표시용)
+        resultField = TextFieldCreator.createResultTextField();
+        frame.add(resultField);  // 결과 필드를 하단에 배치
+
+        // 버튼 패널
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(6, 4, 5, 5)); // 5행 4열 그리드 레이아웃
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // 버튼 배열
+        String[] buttons = {
+            "%", "CE", "C", "X", 
+            "1/x", "x²", "√x", "÷", 
+            "7", "8", "9", "×", 
+            "4", "5", "6", "-", 
+            "1", "2", "3", "+", 
+            "+/-", "0", ".", "="
+        };
+
+        // 버튼 추가 (버튼 크기 조정)
+        for (String text : buttons) {
+            JButton button = new Button(text).createButton();  // 외부 Button 클래스 사용
+            button.setPreferredSize(new Dimension(80, 60));  // 버튼 크기 설정
+            
+            button.addActionListener(new Action(textField));  // 버튼 클릭 시 Action 클래스에서 처리
+
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel);
+    }
+
+    // 계산기 화면을 표시하는 메서드
+    public void show() {
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,135 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action2 implements ActionListener {
+    private JTextField textField;   // Input field
+    private JTextField resultField; // Result field
+    private static boolean firstInput = true; // Flag to check first input
+    private static double operand1 = 0;  // First operand
+    private static double operand2 = 0;  // Second operand
+    private static double previousResult = 0;  // Previous calculation result
+    private static String operator = ""; // Current operator
+
+    // Constructor
+    public Action2(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        // Handle numbers and decimal point
+        if ("0123456789.".contains(command)) {
+            if (firstInput) {
+                textField.setText(command);  // Start new input
+                firstInput = false;
+            } else {
+                textField.setText(textField.getText() + command); // Append number or dot
+            }
+            
+            // Update the expression in resultField
+            resultField.setText(resultField.getText() + command);
+        }
+        // Handle operators: +, -, ×, ÷
+        else if ("+-×÷".contains(command)) {
+            // If it's the first operator press, store the operand1
+            if (operator.isEmpty()) {
+                operand1 = Double.parseDouble(textField.getText());
+            } else {
+                // If the operator is pressed again, use the previous result (operand1)
+                operand2 = Double.parseDouble(textField.getText());
+
+                // Perform the previous operation
+                switch (operator) {
+                    case "+":
+                        operand1 += operand2;  // Accumulate result for addition
+                        break;
+                    case "-":
+                        operand1 -= operand2;  // Accumulate result for subtraction
+                        break;
+                    case "×":
+                        operand1 *= operand2;  // Accumulate result for multiplication
+                        break;
+                    case "÷":
+                        if (operand2 != 0) {
+                            operand1 /= operand2;  // Accumulate result for division
+                        } else {
+                            resultField.setText("Error");
+                            return;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                // Update the result field after the operation
+                if (operand1 == (int) operand1) {
+                    resultField.setText(resultField.getText() + " " + operator + " " + operand2 + " = " + (int) operand1);  // Display formula and result
+                } else {
+                    resultField.setText(resultField.getText() + " " + operator + " " + operand2 + " = " + operand1);  // Display formula and result
+                }
+            }
+            
+            operator = command;  // Update the operator
+            textField.setText(""); // Clear text for next operand
+        }
+        // Handle "=" for calculation
+        else if (command.equals("=")) {
+            operand2 = Double.parseDouble(textField.getText());
+
+            // Perform the calculation based on the stored operator
+            double result = 0;
+
+            switch (operator) {
+                case "+":
+                    result = operand1 + operand2;
+                    break;
+                case "-":
+                    result = operand1 - operand2;
+                    break;
+                case "×":
+                    result = operand1 * operand2;
+                    break;
+                case "÷":
+                    if (operand2 != 0) {
+                        result = operand1 / operand2;
+                    } else {
+                        resultField.setText("Error");
+                        return;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            previousResult = result;
+
+            // Display the full expression and the result
+            if (result == (int) result) {
+                resultField.setText(resultField.getText() + " " + operator + " " + operand2 + " = " + (int) result);  // Display as integer
+            } else {
+                resultField.setText(resultField.getText() + " " + operator + " " + operand2 + " = " + result);  // Display as float
+            }
+
+            operand1 = result;  // Store the result for future calculations
+            firstInput = true; // Reset for next input
+            operator = ""; // Clear the operator
+        }
+        // Handle "C" (clear)
+        else if (command.equals("C")) {
+            textField.setText("");  // Clear the input field
+            resultField.setText("");  // Clear the result field
+            operand1 = operand2 = previousResult = 0;
+            operator = "";
+            firstInput = true;
+        }
+        // Handle "CE" (Clear Entry) to clear only the current input
+        else if (command.equals("CE")) {
+            textField.setText("");  // Clear the current input only
+        }
+    }
+
+
+}
