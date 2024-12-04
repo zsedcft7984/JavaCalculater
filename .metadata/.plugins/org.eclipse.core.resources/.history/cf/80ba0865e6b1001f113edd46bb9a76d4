@@ -1,0 +1,101 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Calculator {
+    private JFrame frame;
+    private JTextField textField;  // 수식 입력용 텍스트 필드
+    private JTextField resultField; // 결과 표시용 텍스트 필드
+    private JTextField operatorField; // 연산자 표시용 텍스트 필드
+    private JPanel buttonPanel; // 버튼들이 배치될 패널
+
+    // 생성자
+    public Calculator() {
+        // JFrame 생성 및 설정
+        frame = new JFrame("계산기");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600); // 기본 크기 설정
+        frame.setLayout(new BorderLayout(10, 10)); // BorderLayout 레이아웃 설정
+        frame.setMinimumSize(new Dimension(400, 600)); // 최소 크기 설정
+
+        // 좌측 패널 (텍스트 필드 및 버튼을 담을 패널)
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BorderLayout(10, 10)); // BorderLayout으로 구성
+        leftPanel.setBackground(Color.WHITE);  // 배경색을 흰색으로 설정
+
+        // 수식 입력 텍스트 필드 생성 및 설정
+        textField = TextFieldCreator.createFormulaTextField();
+        textField.setFont(new Font("Arial", Font.PLAIN, 24)); // 수식 입력 텍스트의 폰트 설정
+        textField.setHorizontalAlignment(SwingConstants.RIGHT); // 오른쪽 정렬
+        textField.setBackground(Color.WHITE); // 배경색을 흰색으로 설정
+        textField.setForeground(Color.BLACK); // 텍스트 색상을 검정색으로 설정
+        leftPanel.add(textField, BorderLayout.NORTH); // 상단에 배치
+
+        // 연산자 표시용 필드 및 결과 표시용 필드를 1행 2열 GridLayout으로 배치
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new GridLayout(1, 2)); // 1행 2열 GridLayout (가로로 배치)
+        resultPanel.setBackground(Color.WHITE);
+
+        // 연산자 표시 필드 생성 및 설정
+        operatorField = TextFieldCreator.createOperatorTextField();
+        operatorField.setFont(new Font("Arial", Font.BOLD, 26)); // 연산자 폰트 설정
+        operatorField.setHorizontalAlignment(SwingConstants.LEFT); // 왼쪽 정렬
+        operatorField.setEditable(false); // 연산자 필드는 편집 불가
+        operatorField.setBackground(Color.WHITE);
+        operatorField.setForeground(Color.BLACK); // 텍스트 색상 설정
+        resultPanel.add(operatorField); // 연산자 표시 필드 추가
+
+        // 결과 표시 필드 생성 및 설정
+        resultField = TextFieldCreator.createResultTextField();
+        resultField.setFont(new Font("Arial", Font.BOLD, 40)); // 결과 텍스트 폰트 설정
+        resultField.setHorizontalAlignment(SwingConstants.RIGHT); // 오른쪽 정렬
+        resultField.setEditable(false); // 결과 필드는 편집 불가
+        resultField.setBackground(Color.WHITE);
+        resultField.setForeground(Color.BLACK); // 텍스트 색상 설정
+        resultPanel.add(resultField); // 결과 표시 필드 추가
+
+        leftPanel.add(resultPanel, BorderLayout.CENTER); // 중앙에 배치
+
+        // 버튼 패널 생성 및 설정
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(6, 4, 5, 5)); // 6행 4열 그리드 레이아웃
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // 여백 설정
+
+        // 버튼 배열
+        String[] buttons = {
+            "%", "CE", "C", "Exit",
+            "1/x", "x²", "√x", "÷",
+            "7", "8", "9", "×",
+            "4", "5", "6", "-",
+            "1", "2", "3", "+",
+            "+/-", "0", ".", "="
+        };
+
+        // 버튼 생성 및 설정
+        for (String text : buttons) {
+            Button button = new Button(text);  // 버튼 객체 생성
+            JButton jButton = button.createButton();  // 버튼 생성
+
+            // 버튼 크기 설정: 버튼의 크기를 적절히 조정
+            jButton.setPreferredSize(new Dimension(100, 60)); // 버튼 크기 설정
+
+            // 버튼 이벤트 리스너 추가
+            jButton.addActionListener(new Action2(textField, resultField, operatorField));
+
+            // 버튼 패널에 버튼 추가
+            buttonPanel.add(jButton);
+        }
+
+        // 버튼 패널을 좌측 패널의 하단에 배치
+        leftPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 좌측 패널을 프레임의 중앙에 추가
+        frame.add(leftPanel, BorderLayout.CENTER);
+    }
+
+    // 계산기 화면을 표시하는 메서드
+    public void show() {
+        frame.setVisible(true); // 계산기 화면을 보이도록 설정
+    }
+}

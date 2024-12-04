@@ -1,0 +1,29 @@
+package Calculator2;
+
+import javax.swing.*;
+
+public class TextFieldCreator {
+
+    public static JTextField createFormulaTextField() {
+        JTextField textField = new JTextField();
+        textField.setFont(new Font("Arial", Font.PLAIN, 24));
+        textField.setHorizontalAlignment(SwingConstants.RIGHT);
+        return textField;
+    }
+
+    public static JTextField createOperatorTextField() {
+        JTextField operatorField = new JTextField();
+        operatorField.setFont(new Font("Arial", Font.BOLD, 26));
+        operatorField.setHorizontalAlignment(SwingConstants.RIGHT);
+        operatorField.setEditable(false);
+        return operatorField;
+    }
+
+    public static JTextField createResultTextField() {
+        JTextField resultField = new JTextField();
+        resultField.setFont(new Font("Arial", Font.BOLD, 40));
+        resultField.setHorizontalAlignment(SwingConstants.RIGHT);
+        resultField.setEditable(false);
+        return resultField;
+    }
+}

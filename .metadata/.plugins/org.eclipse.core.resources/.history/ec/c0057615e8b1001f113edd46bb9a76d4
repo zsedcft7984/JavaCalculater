@@ -1,0 +1,150 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action2 implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private JTextField operatorField; // 연산자 표시용 필드
+    private static boolean firstInput = true; // 첫 입력 상태
+    private static double operand1 = 0;  // 첫 번째 피연산자
+    private static double operand2 = 0;  // 두 번째 피연산자
+    private static String currentOperator = ""; // 현재 연산자
+
+    // 생성자
+    public Action2(JTextField textField, JTextField resultField, JTextField operatorField) {
+        this.textField = textField;
+        this.resultField = resultField;
+        this.operatorField = operatorField;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        // 숫자 및 소수점 입력 처리
+        if ("0123456789.".contains(command)) {
+            handleNumberInput(command);
+        }
+        // 연산자 입력 처리: +, -, ×, ÷
+        else if ("+-×÷".contains(command)) {
+            handleOperatorInput(command);
+        }
+        // "=" 버튼 처리 (계산 실행)
+        else if (command.equals("=")) {
+            handleEqualsInput();
+        }
+        // "C" 버튼 처리 (전체 초기화)
+        else if (command.equals("C")) {
+            resetCalculator();
+        }
+        // "CE" 버튼 처리 (현재 입력만 초기화)
+        else if (command.equals("CE")) {
+            textField.setText(""); // 현재 입력만 초기화
+        }
+        // "Exit" 버튼 처리 (계산기 종료)
+        else if (command.equals("Exit")) {
+            System.exit(0); // 계산기 종료
+        }
+    }
+    // 숫자 및 소수점 입력 처리
+    // 숫자 및 소수점 입력 처리
+    private void handleNumberInput(String input) {
+        if (firstInput) {
+            // 첫 입력이 소수점이면 "0."으로 시작
+            if (".".equals(input)) {
+                textField.setText("0.");  // 첫 입력이 소수점일 경우 0.으로 시작
+            } else {
+                textField.setText(input); // 숫자가 입력되면 해당 숫자로 시작
+            }
+            firstInput = false;
+        } else {
+            // 입력 값에 소수점이 있는지 확인
+            if (".".equals(input) && textField.getText().contains(".")) {
+                return; // 이미 소수점이 있으면 추가 입력 차단
+            }
+            textField.setText(textField.getText() + input); // 소수점 또는 숫자 추가
+        }
+    }
+
+
+    // 연산자 입력 처리
+    private void handleOperatorInput(String operator) {
+        if (!textField.getText().isEmpty()) {
+            if (!currentOperator.isEmpty()) {
+                // 기존 연산자가 있을 경우 먼저 계산 수행
+                operand2 = Double.parseDouble(textField.getText());
+                calculateResult(); // 이전 연산 수행 후, 결과는 operand1에 저장
+            } else {
+                // 첫 번째 피연산자 설정
+                operand1 = Double.parseDouble(textField.getText());
+            }
+
+            // 새 연산자로 업데이트
+            currentOperator = operator;
+            operatorField.setText(currentOperator); // 연산자 표시 필드 업데이트
+            textField.setText(""); // 입력 필드 초기화
+        }
+    }
+
+    // "=" 버튼 처리
+    private void handleEqualsInput() {
+        if (!currentOperator.isEmpty() && !textField.getText().isEmpty()) {
+            operand2 = Double.parseDouble(textField.getText());
+            calculateResult();
+            currentOperator = ""; // 연산자 초기화
+            firstInput = true; // 새로운 입력 준비
+        } else if (!textField.getText().isEmpty()) {
+            resultField.setText(textField.getText()); // 연산자 없이 숫자만 입력된 경우
+        }
+    }
+
+    // 결과 계산
+    private void calculateResult() {
+        double result = 0;
+        try {
+            switch (currentOperator) {
+                case "+":
+                    result = operand1 + operand2;
+                    break;
+                case "-":
+                    result = operand1 - operand2;
+                    break;
+                case "×":
+                    result = operand1 * operand2;
+                    break;
+                case "÷":
+                    if (operand2 == 0) {
+                        throw new ArithmeticException("Division by Zero");
+                    }
+                    result = operand1 / operand2;
+                    break;
+            }
+            operand1 = result; // 결과를 operand1에 저장
+            updateResultField(result);
+        } catch (ArithmeticException e) {
+            resultField.setText("Error");
+            resetCalculator(); // 오류 발생 시 전체 초기화
+        }
+    }
+
+    // 결과 필드 업데이트
+    private void updateResultField(double result) {
+        if (result == (int) result) {
+            resultField.setText(String.format("%d", (int) result)); // 정수로 출력
+        } else {
+            resultField.setText(String.valueOf(result)); // 실수로 출력
+        }
+    }
+
+    // 전체 초기화
+    private void resetCalculator() {
+        textField.setText("");  // 입력 필드 초기화
+        resultField.setText("");  // 결과 필드 초기화
+        operand1 = operand2 = 0;  // 연산 값 초기화
+        currentOperator = "";  // 연산자 초기화
+        operatorField.setText(""); // 연산자 표시 필드 초기화
+        firstInput = true;  // 입력 초기화
+    }
+} 

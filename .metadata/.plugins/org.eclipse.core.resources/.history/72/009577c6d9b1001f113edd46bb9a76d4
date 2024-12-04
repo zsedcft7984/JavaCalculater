@@ -1,0 +1,76 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Calculator {
+    private JFrame frame;
+    private JTextField textField;
+    private JTextField resultField;
+    private JPanel buttonPanel;
+
+    // 생성자
+    public Calculator() {
+        // JFrame 생성
+        frame = new JFrame("계산기");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600); // 기본 크기 설정
+        frame.setLayout(new BorderLayout(10, 10));
+        frame.setMinimumSize(new Dimension(400, 600));
+
+        // 상단 텍스트 표시 패널
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new GridLayout(2, 1, 5, 5));
+
+        // 수식 입력 필드
+        textField = TextFieldCreator.createFormulaTextField();
+        textField.setFont(new Font("Arial", Font.PLAIN, 24));
+        textField.setHorizontalAlignment(SwingConstants.RIGHT);
+        textPanel.add(textField);
+
+        // 결과 표시 필드
+        resultField = TextFieldCreator.createResultTextField();
+        resultField.setFont(new Font("Arial", Font.BOLD, 26));
+        resultField.setHorizontalAlignment(SwingConstants.RIGHT);
+        resultField.setEditable(false); // 결과 필드는 편집 불가
+        textPanel.add(resultField);
+
+        frame.add(textPanel, BorderLayout.NORTH);
+
+        // 버튼 패널
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(6, 4, 5, 5)); // 6행 4열 그리드 레이아웃
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // 버튼 배열
+        String[] buttons = {
+            "%", "CE", "C", "Exit",
+            "1/x", "x²", "√x", "÷",
+            "7", "8", "9", "×",
+            "4", "5", "6", "-",
+            "1", "2", "3", "+",
+            "+/-", "0", ".", "="
+        };
+
+        // 버튼 추가
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.BOLD, 18));
+            button.setFocusPainted(false);
+            button.setPreferredSize(new Dimension(80, 60));
+
+            // 버튼 이벤트 리스너 추가
+            button.addActionListener(new Action2(textField, resultField));
+
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER);
+    }
+
+    // 계산기 화면을 표시하는 메서드
+    public void show() {
+        frame.setVisible(true);
+    }
+}

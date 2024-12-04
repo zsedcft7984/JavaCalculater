@@ -1,0 +1,66 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Calculator {
+    public static void main(String[] args) {
+        // 프레임 설정
+        JFrame frame = new JFrame("Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600);
+        frame.setLayout(new BorderLayout());
+
+        // 수식 입력 필드
+        JTextField textField = new JTextField();
+        textField.setFont(new Font("Arial", Font.PLAIN, 30));
+        textField.setHorizontalAlignment(JTextField.RIGHT);
+        textField.setEditable(false);  // 입력 불가능하게 설정
+        frame.add(textField, BorderLayout.NORTH);
+
+        // 결과 표시 필드
+        JTextField resultField = new JTextField();
+        resultField.setFont(new Font("Arial", Font.PLAIN, 30));
+        resultField.setHorizontalAlignment(JTextField.RIGHT);
+        resultField.setEditable(false);  // 결과 표시만 가능
+        frame.add(resultField, BorderLayout.CENTER);
+
+        // 연산자 표시 필드
+        JTextField operatorField = new JTextField();
+        operatorField.setFont(new Font("Arial", Font.PLAIN, 30));
+        operatorField.setHorizontalAlignment(JTextField.CENTER);
+        operatorField.setEditable(false);  // 연산자 표시만 가능
+        frame.add(operatorField, BorderLayout.SOUTH);
+
+        // 버튼 패널 설정
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(5, 4));
+
+        String[] buttonLabels = {
+            "7", "8", "9", "÷",
+            "4", "5", "6", "×",
+            "1", "2", "3", "-",
+            "0", ".", "=", "+",
+            "C", "CE", "+/-", "Exit"
+        };
+
+        // 버튼 추가
+        for (String label : buttonLabels) {
+            JButton button = new JButton(label);
+            button.setFont(new Font("Arial", Font.PLAIN, 30));
+            button.addActionListener(new Action2(textField, resultField, operatorField));  // Action2 연결
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER);
+
+        // Action2 객체에 KeyListener 추가
+        Action2 action = new Action2(textField, resultField, operatorField);
+        textField.addKeyListener(action);  // 텍스트 필드에 KeyListener 추가
+
+        // 계산기 창 보이기
+        frame.show(true);
+    }
+}

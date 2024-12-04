@@ -1,0 +1,159 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Action2 implements ActionListener {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private String currentInput = "";  // 현재 입력 값
+    private double operand1 = 0;  // 첫 번째 피연산자
+    private double operand2 = 0;  // 두 번째 피연산자
+    private String operator = ""; // 현재 연산자
+    private boolean isResultDisplayed = false; // 결과 표시 상태 체크
+
+    public CalculatorAction(JTextField textField, JTextField resultField) {
+        this.textField = textField;
+        this.resultField = resultField;
+
+        // 키보드 이벤트 리스너 추가
+        this.textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e);
+            }
+        });
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        if ("0123456789.".contains(command)) {
+            handleNumberInput(command);
+        } else if ("+-×÷".contains(command)) {
+            handleOperatorInput(command);
+        } else if (command.equals("=")) {
+            handleEqualsInput();
+        } else if (command.equals("C")) {
+            resetCalculator();
+        } else if (command.equals("CE")) {
+            clearCurrentInput();
+        } else if (command.equals("+/-")) {
+            toggleSign();
+        }
+    }
+
+    // 키보드 입력 처리
+    private void handleKeyPress(KeyEvent e) {
+        char keyChar = e.getKeyChar();
+
+        // 숫자 및 소수점 입력 처리
+        if (Character.isDigit(keyChar) || keyChar == '.') {
+            handleNumberInput(String.valueOf(keyChar));
+        } 
+        // 연산자 입력 처리
+        else if ("+-×÷".indexOf(keyChar) != -1) {
+            handleOperatorInput(String.valueOf(keyChar));
+        }
+        // '=' 버튼 처리
+        else if (keyChar == KeyEvent.VK_ENTER) {
+            handleEqualsInput();
+        }
+        // "C" 버튼 처리
+        else if (keyChar == KeyEvent.VK_ESCAPE) {
+            resetCalculator();
+        }
+        // "CE" 버튼 처리
+        else if (keyChar == KeyEvent.VK_BACK_SPACE) {
+            clearCurrentInput();
+        }
+    }
+
+    // 숫자 및 소수점 입력 처리
+    private void handleNumberInput(String input) {
+        if (isResultDisplayed) {
+            currentInput = ""; // 이전 계산 결과가 표시된 상태에서 새로운 숫자 입력
+            isResultDisplayed = false;
+        }
+
+        if (".".equals(input) && currentInput.contains(".")) {
+            return; // 이미 소수점이 있으면 추가 입력 차단
+        }
+
+        currentInput += input;
+        textField.setText(currentInput);
+    }
+
+    // 연산자 입력 처리
+    private void handleOperatorInput(String operator) {
+        if (!currentInput.isEmpty()) {
+            operand1 = Double.parseDouble(currentInput);  // 첫 번째 피연산자 저장
+            currentInput = "";  // 입력 필드 초기화
+            this.operator = operator; // 연산자 저장
+        }
+    }
+
+    // "=" 버튼 처리 (계산 실행)
+    private void handleEqualsInput() {
+        if (!currentInput.isEmpty() && !operator.isEmpty()) {
+            operand2 = Double.parseDouble(currentInput);  // 두 번째 피연산자 저장
+            double result = calculateResult();
+            resultField.setText(String.valueOf(result));  // 결과 표시
+            currentInput = String.valueOf(result);  // 결과를 입력 필드에 표시
+            isResultDisplayed = true;  // 결과 표시 상태로 변경
+            operator = "";  // 연산자 초기화
+        }
+    }
+
+    // 결과 계산
+    private double calculateResult() {
+        double result = 0;
+        switch (operator) {
+            case "+":
+                result = operand1 + operand2;
+                break;
+            case "-":
+                result = operand1 - operand2;
+                break;
+            case "×":
+                result = operand1 * operand2;
+                break;
+            case "÷":
+                if (operand2 != 0) {
+                    result = operand1 / operand2;
+                } else {
+                    resultField.setText("Error");
+                    resetCalculator();
+                }
+                break;
+        }
+        return result;
+    }
+
+    // 전체 초기화
+    private void resetCalculator() {
+        currentInput = "";
+        operand1 = operand2 = 0;
+        operator = "";
+        resultField.setText("");
+        textField.setText("");
+        isResultDisplayed = false;
+    }
+
+    // 현재 입력만 초기화
+    private void clearCurrentInput() {
+        currentInput = "";
+        textField.setText("");
+    }
+
+    // 부호 변경 처리
+    private void toggleSign() {
+        if (!currentInput.isEmpty()) {
+            double currentValue = Double.parseDouble(currentInput);
+            currentValue = -currentValue;  // 부호 반전
+            currentInput = String.valueOf(currentValue);
+            textField.setText(currentInput);
+        }
+    }
+}

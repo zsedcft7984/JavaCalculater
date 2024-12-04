@@ -1,0 +1,46 @@
+package calculator;
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class KeyInputHandler extends KeyAdapter {
+    private JTextField textField;   // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private Action2 action; // CalculatorAction 객체
+
+    public KeyInputHandler(JTextField textField, JTextField resultField, CalculatorAction action) {
+        this.textField = textField;
+        this.resultField = resultField;
+        this.action = action;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        char keyChar = e.getKeyChar();
+
+        // 숫자 및 소수점 입력 처리
+        if (Character.isDigit(keyChar) || keyChar == '.') {
+            action.handleNumberInput(String.valueOf(keyChar));
+        } 
+        // 연산자 입력 처리
+        else if ("+-×÷".indexOf(keyChar) != -1) {
+            action.handleOperatorInput(String.valueOf(keyChar));
+        }
+        // '=' 버튼 처리
+        else if (keyChar == KeyEvent.VK_ENTER) {
+            action.handleEqualsInput();
+        }
+        // "C" 버튼 처리
+        else if (keyChar == KeyEvent.VK_ESCAPE) {
+            action.resetCalculator();
+        }
+        // "CE" 버튼 처리
+        else if (keyChar == KeyEvent.VK_BACK_SPACE) {
+            action.clearCurrentInput();
+        }
+        // "+/-" 버튼 처리
+        else if (keyChar == KeyEvent.VK_PLUS) {
+            action.toggleSign();
+        }
+    }
+}

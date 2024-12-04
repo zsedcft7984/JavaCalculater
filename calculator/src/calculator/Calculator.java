@@ -2,70 +2,93 @@ package calculator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
-public class Calculator {
+public class Calculator{
     private JFrame frame;
-    private JTextField textField;
-    private JTextField resultField;
-    private JPanel buttonPanel;
+    private JTextField textField;  // 수식 입력용 필드
+    private JTextField resultField; // 결과 표시용 필드
+    private JTextField operatorField; // 연산자 표시용 필드
+    private JPanel buttonPanel; // 버튼 패널
 
-    // 생성자: 외부에서 호출할 수 있도록 설정
+    // 생성자
     public Calculator() {
         // JFrame 생성
         frame = new JFrame("계산기");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 600);
-        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));  // 수직 방향으로 컴포넌트를 배치
-        frame.setMinimumSize(new Dimension(400, 600));
+        frame.setSize(350, 550); // 가로 크기 확장
+        frame.setLayout(new BorderLayout(10, 10));
+        frame.setMinimumSize(new Dimension(350, 550));
 
-        // 상단 텍스트 표시 필드 (수식 입력)
+        // 좌측 패널 (텍스트 필드와 버튼)
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BorderLayout(10, 10));
+        leftPanel.setBackground(Color.WHITE);  // 배경색을 검정색으로 설정
+
+        // 수식 입력 텍스트 필드
         textField = TextFieldCreator.createFormulaTextField();
-        
-        // 숫자만 입력되도록 제한하는 KeyListener 추가
-        textField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char keyChar = e.getKeyChar();
-                // 숫자, 연산자 (+, -, *, /, =), Backspace만 허용
-                if (!Character.isDigit(keyChar) && keyChar != KeyEvent.VK_BACK_SPACE && keyChar != '+' 
-                        && keyChar != '-' && keyChar != '*' && keyChar != '/' && keyChar != '=') {
-                    e.consume();  // 불필요한 입력을 막음
-                }
-            }
-        });
-        frame.add(textField);
+        textField.setFont(new Font("Arial", Font.PLAIN, 30));
+        textField.setHorizontalAlignment(SwingConstants.RIGHT);
+        textField.setBackground(Color.WHITE);
+        textField.setForeground(Color.BLACK); // 텍스트 색상을 흰색으로 설정
+        leftPanel.add(textField, BorderLayout.NORTH);
 
-        // 결과 텍스트 필드 (결과 표시용)
+        // 연산자 표시용 필드와 결과 표시용 필드를 1행 2열 GridLayout으로 배치
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new GridLayout(1, 2)); // 1행 2열 GridLayout (가로로 배치)
+        resultPanel.setBackground(Color.WHITE);
+
+        // 연산자 표시 필드
+        operatorField = TextFieldCreator.createOperatorTextField();
+        operatorField.setFont(new Font("Arial", Font.BOLD, 30));
+        operatorField.setHorizontalAlignment(SwingConstants.LEFT);
+        operatorField.setEditable(false); // 연산자 필드는 편집 불가
+        operatorField.setBackground(Color.WHITE);
+        operatorField.setForeground(Color.BLACK); // 텍스트 색상을 흰색으로 설정
+        resultPanel.add(operatorField);
+
+        // 결과 표시 필드
         resultField = TextFieldCreator.createResultTextField();
-        frame.add(resultField);  // 결과 필드를 하단에 배치
+        resultField.setFont(new Font("Arial", Font.BOLD, 40));
+        resultField.setHorizontalAlignment(SwingConstants.RIGHT);
+        resultField.setEditable(false); // 결과 필드는 편집 불가
+        resultField.setBackground(Color.WHITE);
+        resultField.setForeground(Color.BLACK); // 텍스트 색상을 흰색으로 설정
+        resultPanel.add(resultField);
+
+        leftPanel.add(resultPanel, BorderLayout.CENTER);
 
         // 버튼 패널
         buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(6, 4, 5, 5)); // 5행 4열 그리드 레이아웃
+        buttonPanel.setLayout(new GridLayout(5, 4, 5, 5)); // 6행 4열 그리드 레이아웃
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // 버튼 배열
         String[] buttons = {
-            "%", "CE", "C", "Exit", 
-            "1/x", "x²", "√x", "÷", 
-            "7", "8", "9", "×", 
-            "4", "5", "6", "-", 
-            "1", "2", "3", "+", 
+        	"Exit","CE", "C","÷",
+            "7", "8", "9", "×",
+            "4", "5", "6", "-",
+            "1", "2", "3", "+",
             "+/-", "0", ".", "="
         };
 
-        // 버튼 추가 (버튼 크기 조정)
+        // 버튼 추가
         for (String text : buttons) {
-            JButton button = new Button(text).createButton();  // 외부 Button 클래스 사용
-            button.setPreferredSize(new Dimension(80, 60));  // 버튼 크기 설정
-            
-            button.addActionListener(new Action2(textField, resultField));
+            Button button = new Button(text);  // 버튼 객체 생성
+            JButton jButton = button.createButton();  // 버튼 생성
 
-            buttonPanel.add(button);
+            // 버튼 크기 설정: 버튼의 높이를 증가시켜 더 커지게 함
+            jButton.setPreferredSize(new Dimension(100, 65)); // 버튼의 높이를 늘림
+
+            // 버튼 이벤트 리스너 추가
+            jButton.addActionListener(new Action2(textField, resultField, operatorField));
+
+            buttonPanel.add(jButton);
         }
 
-        frame.add(buttonPanel);
+        leftPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 좌측 패널을 바로 프레임에 추가
+        frame.add(leftPanel, BorderLayout.CENTER);
     }
 
     // 계산기 화면을 표시하는 메서드
