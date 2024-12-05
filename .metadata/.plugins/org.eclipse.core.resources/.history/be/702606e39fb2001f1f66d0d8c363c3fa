@@ -1,0 +1,84 @@
+package Calculator3;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CalculatorGUI{
+    private Calculator calculator = new Calculator();
+    private JFrame frame;
+    private JTextField display;
+
+    public void createAndShowGUI() {
+        // 프레임 설정
+        frame = new JFrame("Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600);
+        frame.setLayout(new BorderLayout());
+
+        // 디스플레이 패널
+        display = new JTextField("0");
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setEditable(false);
+        display.setFont(new Font("Arial", Font.BOLD, 30));
+        frame.add(display, BorderLayout.NORTH);
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 4, 5, 5));
+
+        String[] buttons = {
+            "7", "8", "9", "/",
+            "4", "5", "6", "*",
+            "1", "2", "3", "-",
+            "C", "0", "=", "+"
+        };
+
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.BOLD, 20));
+            button.addActionListener(new ButtonClickListener());
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+
+    // 버튼 클릭 이벤트 처리
+    private class ButtonClickListener implements ActionListener {
+        private String currentInput = "";
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+
+            try {
+                if ("0123456789".contains(command)) {
+                    if (calculator.isNewOperand) {
+                        currentInput = command;
+                        calculator.isNewOperand = false;
+                    } else {
+                        currentInput += command;
+                    }
+                    display.setText(currentInput);
+                } else if ("+-*/".contains(command)) {
+                    calculator.calculate(Double.parseDouble(currentInput));
+                    calculator.setOperator(command);
+                    display.setText(String.valueOf(calculator.getResult()));
+                } else if ("=".equals(command)) {
+                    calculator.calculate(Double.parseDouble(currentInput));
+                    display.setText(String.valueOf(calculator.getResult()));
+                    calculator.setOperator("");
+                } else if ("C".equals(command)) {
+                    calculator.clear();
+                    currentInput = "0";
+                    display.setText(currentInput);
+                }
+            } catch (Exception ex) {
+                display.setText("Error");
+            }
+        }
+    }
+}

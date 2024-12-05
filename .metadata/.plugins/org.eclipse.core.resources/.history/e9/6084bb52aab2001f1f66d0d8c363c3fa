@@ -1,0 +1,85 @@
+package Calculator3;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CalculatorGUI {
+    private JFrame frame;
+    private JTextField display;
+    private Calculator calculator; // Calculator 인스턴스
+
+    public CalculatorGUI() {
+        calculator = new Calculator(); // Calculator 초기화
+        createUI();
+    }
+
+    private void createUI() {
+        frame = new JFrame("Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 400);
+        frame.setMinimumSize(new Dimension(300, 400)); // 최소 크기 설정
+
+        // 텍스트 디스플레이 설정
+        display = new JTextField("0");
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setEditable(false);
+        display.setFont(new Font("Arial", Font.BOLD, 24));
+        display.setPreferredSize(new Dimension(300, 40)); // 세로 크기 설정
+        frame.add(display, BorderLayout.NORTH);
+
+        // 버튼 패널 설정
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridBagLayout()); // GridBagLayout 사용
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH; // 버튼이 셀을 꽉 채우도록 설정
+        gbc.insets = new Insets(3, 3, 3, 3); // 버튼 간격 약간 추가 (3픽셀)
+
+        String[] buttons = {
+                "7", "8", "9", "+",
+                "4", "5", "6", "-",
+                "1", "2", "3", "*",
+                "C", "0", "=", "/"
+        };
+
+        // 버튼 생성 및 배치
+        int row = 0, col = 0;
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.BOLD, 20));
+            button.addActionListener(new ButtonClickListener());
+
+            gbc.gridx = col; // 열 위치
+            gbc.gridy = row; // 행 위치
+            buttonPanel.add(button, gbc);
+
+            col++;
+            if (col > 3) { // 4열 이후 다음 행으로 이동
+                col = 0;
+                row++;
+            }
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String input = e.getActionCommand();
+            try {
+                calculator.handleInput(input); // Calculator로 입력 전달
+                display.setText(calculator.getDisplayText()); // 결과를 표시
+            } catch (Exception ex) {
+                display.setText("Error");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(CalculatorGUI::new);
+    }
+}
+

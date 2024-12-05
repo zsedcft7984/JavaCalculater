@@ -1,0 +1,85 @@
+package Calculator3;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CalculatorGUI {
+    private JFrame frame;
+    private JTextField display;
+    private Calculator calculator;
+
+    public CalculatorGUI() {
+        calculator = new Calculator();
+        createUI();
+    }
+
+    private void createUI() {
+        frame = new JFrame("Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(330, 550); // 기본 창 크기
+        frame.setMinimumSize(new Dimension(330, 550)); // 최소 크기 설정
+
+        // 텍스트 디스플레이 설정
+        display = new JTextField("0");
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setEditable(false);
+        display.setFont(new Font("Arial", Font.BOLD, 24));
+        display.setPreferredSize(new Dimension(330, 50)); // 텍스트 영역 크기 설정
+        frame.add(display, BorderLayout.NORTH);
+
+        // 버튼 패널 설정
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 4, 8, 8)); // 4x4 버튼 레이아웃, 간격 8px
+
+        String[] buttons = {
+                "7", "8", "9", "+",
+                "4", "5", "6", "-",
+                "1", "2", "3", "*",
+                "C", "0", "=", "/"
+        };
+
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.BOLD, 20));
+            button.setOpaque(true); // 버튼 배경색 보이기 설정
+
+            // 버튼 배경색 설정
+            if (text.matches("\\d")) { // 숫자 버튼
+                button.setBackground(Color.LIGHT_GRAY);
+            } else if ("+-*/".contains(text)) { // 연산자 버튼
+                button.setBackground(Color.BLUE);
+                button.setForeground(Color.WHITE);
+            } else if ("=".equals(text)) { // '=' 버튼
+                button.setBackground(Color.RED);
+                button.setForeground(Color.WHITE);
+            } else if ("C".equals(text)) { // 'C' 버튼
+                button.setBackground(Color.DARK_GRAY);
+                button.setForeground(Color.WHITE);
+            }
+
+            button.addActionListener(new ButtonClickListener());
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER); // 버튼 패널을 중앙에 배치
+        frame.setVisible(true);
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String input = e.getActionCommand();
+            try {
+                calculator.handleInput(input); // Calculator로 입력 전달
+                display.setText(calculator.getDisplayText()); // 결과를 표시
+            } catch (Exception ex) {
+                display.setText("Error");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(CalculatorGUI::new);
+    }
+}

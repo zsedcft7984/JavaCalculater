@@ -1,0 +1,74 @@
+package Calculator3;
+
+
+import java.util.Stack;
+
+public class Calculator {
+    private double result = 0; // 현재 계산 결과
+    private String operator = ""; // 현재 연산자
+    private String currentInput = "0"; // 현재 입력된 숫자 문자열
+    private boolean isNewOperand = true; // 새로운 피연산자 여부
+
+    public String getCurrentInput() {
+        return currentInput;
+    }
+
+    public void handleInput(String input) {
+        if ("0123456789".contains(input)) { // 숫자 입력
+            if (isNewOperand) {
+                currentInput = input; // 새 숫자로 대체
+                isNewOperand = false;
+            } else {
+                currentInput += input; // 기존 숫자에 추가
+            }
+        } else if ("+-*/".contains(input)) { // 연산자 입력
+            calculate(Double.parseDouble(currentInput));
+            operator = input;
+            isNewOperand = true;
+        } else if ("=".equals(input)) { // "=" 입력
+            calculate(Double.parseDouble(currentInput));
+            operator = "";
+            isNewOperand = true;
+        } else if ("C".equals(input)) { // 전체 초기화
+            clear();
+        }
+    }
+
+    public String getDisplayText() {
+        return isNewOperand ? String.valueOf(result) : currentInput;
+    }
+
+    private void calculate(double operand) {
+        if (operator.isEmpty()) {
+            result = operand;
+        } else {
+            switch (operator) {
+                case "+":
+                    result += operand;
+                    break;
+                case "-":
+                    result -= operand;
+                    break;
+                case "*":
+                    result *= operand;
+                    break;
+                case "/":
+                    if (operand == 0) {
+                        throw new ArithmeticException("Cannot divide by zero");
+                    }
+                    result /= operand;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unknown operator: " + operator);
+            }
+        }
+        currentInput = String.valueOf(result);
+    }
+
+    public void clear() {
+        result = 0;
+        currentInput = "0";
+        operator = "";
+        isNewOperand = true;
+    }
+}

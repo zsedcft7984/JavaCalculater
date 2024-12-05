@@ -1,0 +1,148 @@
+package Calculator3;
+
+
+import java.util.Stack;
+
+public class Calculator {
+    private double result = 0;
+    private String operator = "";
+    private boolean isNewOperand = true;
+
+    // 스택을 사용한 우선순위 연산 지원
+    private Stack<Double> operandStack = new Stack<>();
+    private Stack<String> operatorStack = new Stack<>();
+
+    public double getResult() {
+        return result;
+    }
+
+    public boolean isNewOperand() {
+        return isNewOperand;
+    }
+
+    public void setNewOperand(boolean isNewOperand) {
+        this.isNewOperand = isNewOperand;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public void calculate(double operand) {
+        if (operator.isEmpty()) {
+            result = operand;
+        } else {
+            switch (operator) {
+                case "+":
+                    result += operand;
+                    break;
+                case "-":
+                    result -= operand;
+                    break;
+                case "*":
+                    result *= operand;
+                    break;
+                case "/":
+                    if (operand == 0) {
+                        throw new ArithmeticException("Cannot divide by zero");
+                    }
+                    result /= operand;
+                    break;
+                case "%":
+                    result %= operand;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unknown operator: " + operator);
+            }
+        }
+        isNewOperand = true;
+    }
+
+    public void calculateAdvanced(String command, double operand) {
+        switch (command) {
+            case "x²":
+                result = operand * operand;
+                break;
+            case "√x":
+                if (operand < 0) {
+                    throw new ArithmeticException("Cannot calculate square root of negative number");
+                }
+                result = Math.sqrt(operand);
+                break;
+            case "1/x":
+                if (operand == 0) {
+                    throw new ArithmeticException("Cannot calculate reciprocal of zero");
+                }
+                result = 1 / operand;
+                break;
+            case "+/-":
+                result = -operand;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown command: " + command);
+        }
+        isNewOperand = true;
+    }
+
+    // Clear 계산기 (전체 초기화)
+    public void clear() {
+        result = 0;
+        operator = "";
+        isNewOperand = true;
+        operandStack.clear();
+        operatorStack.clear();
+    }
+
+    // 연산 우선순위 처리를 위한 스택 연산
+    public void processExpression(String command, double currentOperand) {
+        if ("+-*/%".contains(command)) {
+            while (!operatorStack.isEmpty() && hasPrecedence(command, operatorStack.peek())) {
+                compute();
+            }
+            operandStack.push(currentOperand);
+            operatorStack.push(command);
+        } else if ("=".equals(command)) {
+            operandStack.push(currentOperand);
+            while (!operatorStack.isEmpty()) {
+                compute();
+            }
+            result = operandStack.pop();
+        }
+    }
+
+    private void compute() {
+        double b = operandStack.pop();
+        double a = operandStack.pop();
+        String op = operatorStack.pop();
+
+        switch (op) {
+            case "+":
+                operandStack.push(a + b);
+                break;
+            case "-":
+                operandStack.push(a - b);
+                break;
+            case "*":
+                operandStack.push(a * b);
+                break;
+            case "/":
+                if (b == 0) {
+                    throw new ArithmeticException("Cannot divide by zero");
+                }
+                operandStack.push(a / b);
+                break;
+            case "%":
+                operandStack.push(a % b);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown operator: " + op);
+        }
+    }
+
+    private boolean hasPrecedence(String currentOp, String previousOp) {
+        if ("+-".contains(previousOp) && "*/%".contains(currentOp)) {
+            return false;
+        }
+        return true;
+    }
+}

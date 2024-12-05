@@ -4,15 +4,17 @@ import javax.swing.*;
 import java.awt.event.*;
 
 public class Action2 implements ActionListener {
-    private JTextField textField;   // 수식 입력용 필드
-    private JTextField resultField; // 결과 표시용 필드
-    private JTextField operatorField; // 연산자 표시용 필드
-    private static boolean firstInput = true; // 첫 입력 상태
-    private static double operand1 = 0;  // 첫 번째 피연산자
-    private static double operand2 = 0;  // 두 번째 피연산자
-    private static String currentOperator = ""; // 현재 연산자
+    // **필드 변수 선언**
+    private JTextField textField;
+    private JTextField resultField;
+    private JTextField operatorField;
 
-    // 생성자
+    private static boolean firstInput = true;     // 첫 입력 상태
+    private static double operand1 = 0;          // 첫 번째 피연산자
+    private static double operand2 = 0;          // 두 번째 피연산자
+    private static String currentOperator = "";  // 현재 연산자
+
+    // **생성자**
     public Action2(JTextField textField, JTextField resultField, JTextField operatorField) {
         this.textField = textField;
         this.resultField = resultField;
@@ -23,143 +25,103 @@ public class Action2 implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
-        // 숫자 및 소수점 입력 처리
-        if ("0123456789.".contains(command)) {
+        // **각 버튼에 대한 동작**
+        if ("0123456789.".contains(command)) {        // 숫자 입력
             handleNumberInput(command);
-        }
-        // 연산자 입력 처리: +, -, ×, ÷
-        else if ("+-×÷".contains(command)) {
+        } else if ("+-×÷".contains(command)) {       // 연산자 입력
             handleOperatorInput(command);
-        }
-        // "+/-" 버튼 처리 (부호 변경)
-        else if (command.equals("+/-")) {
+        } else if (command.equals("+/-")) {          // 부호 변경
             handleSignToggle();
-        }
-        // "=" 버튼 처리 (계산 실행)
-        else if (command.equals("=")) {
+        } else if (command.equals("=")) {            // 계산
             handleEqualsInput();
-        }
-        // "C" 버튼 처리 (전체 초기화)
-        else if (command.equals("C")) {
+        } else if (command.equals("C")) {            // 전체 초기화
             resetCalculator();
-        }
-        // "CE" 버튼 처리 (현재 입력만 초기화)
-        else if (command.equals("CE")) {
-            textField.setText(""); // 현재 입력만 초기화
-        }
-        // "Exit" 버튼 처리 (계산기 종료)
-        else if (command.equals("Exit")) {
-            System.exit(0); // 계산기 종료
+        } else if (command.equals("CE")) {           // 현재 입력 초기화
+            textField.setText("");
+        } else if (command.equals("Exit")) {         // 계산기 종료
+            System.exit(0);
         }
     }
 
-    // 숫자 및 소수점 입력 처리
+    // **숫자 및 소수점 입력 처리**
     private void handleNumberInput(String input) {
         if (firstInput) {
-            if (".".equals(input)) {
-                textField.setText("0."); // 첫 입력이 소수점일 경우 0.으로 시작
-            } else {
-                textField.setText(input); // 새로운 숫자 입력 시작
-            }
+            textField.setText(input.equals(".") ? "0." : input);
             firstInput = false;
         } else {
-            if (".".equals(input) && textField.getText().contains(".")) {
-                return; // 이미 소수점이 있으면 추가 입력 차단
-            }
-            textField.setText(textField.getText() + input); // 입력 추가
+            if (input.equals(".") && textField.getText().contains(".")) return;
+            textField.setText(textField.getText() + input);
         }
     }
 
-    // 연산자 입력 처리
+    // **연산자 입력 처리**
     private void handleOperatorInput(String operator) {
         if (!textField.getText().isEmpty()) {
-            if (!currentOperator.isEmpty()) {
-                // 기존 연산자가 있을 경우 먼저 계산 수행
+            if (!currentOperator.isEmpty()) { // 이전 연산자 처리
                 operand2 = Double.parseDouble(textField.getText());
-                calculateResult(); // 이전 연산 수행 후, 결과는 operand1에 저장
+                calculateResult();
             } else {
-                // 첫 번째 피연산자 설정
                 operand1 = Double.parseDouble(textField.getText());
             }
-
-            // 새 연산자로 업데이트
             currentOperator = operator;
-            operatorField.setText(currentOperator); // 연산자 표시 필드 업데이트
-            textField.setText(""); // 입력 필드 초기화
+            operatorField.setText(currentOperator);
+            textField.setText("");
         }
     }
 
-    // "+/-" 버튼 처리 (부호 변경)
+    // **부호 변경 처리**
     private void handleSignToggle() {
         if (!textField.getText().isEmpty()) {
             String currentText = textField.getText();
-            if (currentText.charAt(0) == '-') {
-                // 부호가 이미 있으면 제거
-                textField.setText(currentText.substring(1));
-            } else {
-                // 부호가 없으면 앞에 "-" 추가
-                textField.setText("-" + currentText);
-            }
+            textField.setText(currentText.charAt(0) == '-' ? currentText.substring(1) : "-" + currentText);
         }
     }
 
-    // "=" 버튼 처리
+    // **계산 실행**
     private void handleEqualsInput() {
         if (!currentOperator.isEmpty() && !textField.getText().isEmpty()) {
             operand2 = Double.parseDouble(textField.getText());
             calculateResult();
-            currentOperator = ""; // 연산자 초기화
-            firstInput = true; // 새로운 입력 준비
+            currentOperator = "";
+            firstInput = true;
         } else if (!textField.getText().isEmpty()) {
-            resultField.setText(textField.getText()); // 연산자 없이 숫자만 입력된 경우
+            resultField.setText(textField.getText());
         }
     }
 
-    // 결과 계산
+    // **결과 계산**
     private void calculateResult() {
         double result = 0;
         try {
             switch (currentOperator) {
-                case "+":
-                    result = operand1 + operand2;
-                    break;
-                case "-":
-                    result = operand1 - operand2;
-                    break;
-                case "×":
-                    result = operand1 * operand2;
-                    break;
-                case "÷":
-                    if (operand2 == 0) {
-                        throw new ArithmeticException("Division by Zero");
-                    }
+                case "+" -> result = operand1 + operand2;
+                case "-" -> result = operand1 - operand2;
+                case "×" -> result = operand1 * operand2;
+                case "÷" -> {
+                    if (operand2 == 0) throw new ArithmeticException("Division by Zero");
                     result = operand1 / operand2;
-                    break;
+                }
             }
             operand1 = result; // 결과를 operand1에 저장
             updateResultField(result);
         } catch (ArithmeticException e) {
             resultField.setText("Error");
-            resetCalculator(); // 오류 발생 시 전체 초기화
+            resetCalculator();
         }
     }
 
-    // 결과 필드 업데이트
+    // **결과 필드 업데이트**
     private void updateResultField(double result) {
-        if (result == (int) result) {
-            resultField.setText(String.format("%d", (int) result)); // 정수로 출력
-        } else {
-            resultField.setText(String.valueOf(result)); // 실수로 출력
-        }
+        resultField.setText(result == (int) result ? String.format("%d", (int) result) : String.valueOf(result));
     }
 
-    // 전체 초기화
+    // **전체 초기화**
     private void resetCalculator() {
-        textField.setText("");  // 입력 필드 초기화
-        resultField.setText("");  // 결과 필드 초기화
-        operand1 = operand2 = 0;  // 연산 값 초기화
-        currentOperator = "";  // 연산자 초기화
-        operatorField.setText(""); // 연산자 표시 필드 초기화
-        firstInput = true;  // 입력 초기화
+        textField.setText("");
+        resultField.setText("");
+        operand1 = operand2 = 0;
+        currentOperator = "";
+        operatorField.setText("");
+        firstInput = true;
     }
 }

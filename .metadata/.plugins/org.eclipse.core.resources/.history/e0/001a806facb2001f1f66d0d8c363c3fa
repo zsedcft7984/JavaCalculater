@@ -1,0 +1,70 @@
+package Calculator3;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CalculatorGUI {
+    private JFrame frame;
+    private JTextField display;
+    private Calculator calculator; // Calculator 인스턴스
+
+    public CalculatorGUI() {
+        calculator = new Calculator(); // Calculator 초기화
+        createUI();
+    }
+
+    private void createUI() {
+        frame = new JFrame("Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(330, 550); // 기본 창 크기
+        frame.setMinimumSize(new Dimension(330, 550)); // 최소 크기 설정
+
+        // 텍스트 디스플레이 설정
+        display = new JTextField("0");
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setEditable(false);
+        display.setFont(new Font("Arial", Font.BOLD, 24));
+        display.setPreferredSize(new Dimension(330, 50)); // 텍스트 영역 크기 설정
+        frame.add(display, BorderLayout.NORTH);
+
+        // 버튼 패널 설정
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 4, 8, 8)); // 4x4 버튼 레이아웃, 간격 8px
+
+        String[] buttons = {
+                "7", "8", "9", "+",
+                "4", "5", "6", "-",
+                "1", "2", "3", "*",
+                "C", "0", "=", "/"
+        };
+
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.BOLD, 20));
+            button.setPreferredSize(new Dimension(40, 30))
+            button.addActionListener(new ButtonClickListener());
+            buttonPanel.add(button);
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER); // 버튼 패널을 중앙에 배치
+        frame.setVisible(true);
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String input = e.getActionCommand();
+            try {
+                calculator.handleInput(input); // Calculator로 입력 전달
+                display.setText(calculator.getDisplayText()); // 결과를 표시
+            } catch (Exception ex) {
+                display.setText("Error");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(CalculatorGUI::new);
+    }
+}

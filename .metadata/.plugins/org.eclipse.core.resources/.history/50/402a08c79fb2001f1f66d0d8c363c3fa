@@ -1,0 +1,47 @@
+package Calculator3;
+
+
+public class Calculator {
+    private double result = 0;
+    private String operator = "";
+    private boolean isNewOperand = true;
+
+    public double getResult() {
+        return result;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+        isNewOperand = true;
+    }
+
+    public void calculate(double operand) {
+        switch (operator) {
+            case "+":
+                result += operand;
+                break;
+            case "-":
+                result -= operand;
+                break;
+            case "*":
+                result *= operand;
+                break;
+            case "/":
+                if (operand != 0) {
+                    result /= operand;
+                } else {
+                    throw new ArithmeticException("Divide by zero");
+                }
+                break;
+            default:
+                result = operand;
+        }
+        isNewOperand = true;
+    }
+
+    public void clear() {
+        result = 0;
+        operator = "";
+        isNewOperand = true;
+    }
+}
